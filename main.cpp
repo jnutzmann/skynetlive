@@ -9,9 +9,12 @@ int main(int argc, char *argv[])
     SkynetLive w;
     w.show();
 
-//    const auto portList = SkynetSerialPort::getAvailablePorts();
-//    for(const QString &portName : portList)
-//        qDebug(portName.toLatin1());
+    const auto portList = SkynetSerialPort::getAvailablePorts();
+    for(const QString &portName : portList)
+        qDebug(portName.toLatin1());
+
+    SkynetSerialPort sp(nullptr);
+    sp.startPort("ttyUSB1");
 
 
     return app.exec();

@@ -6,7 +6,6 @@
 #include <QMutex>
 #include <QWaitCondition>
 
-
 class SkynetSerialPort : public QThread
 {
     Q_OBJECT
@@ -29,14 +28,18 @@ signals:
 protected:
     void decodePacket();
 
+    QByteArray currentPacket;
+
 private:
     QString portName;
     int waitTimeout;
     QMutex mutex;
     bool quit;
 
-    char start_char = 0x7E;
-    char escape_char = 0x7D;
+    char startChar = 0x7E;
+    char escapeChar = 0x7D;
+
+    bool escaped = false;
 };
 
 
@@ -46,7 +49,7 @@ private:
 class HighSpeedSkynetSerialPort : SkynetSerialPort
 {
 protected:
-    void decodePacket() Q_DECL_OVERRIDE;
+    void decodePacket(); // Q_DECL_OVERRIDE;
 };
 
 #endif // SKYNETSERIALPORT_H
