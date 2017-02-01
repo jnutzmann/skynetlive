@@ -6,6 +6,8 @@
 #include <QMutex>
 #include <QWaitCondition>
 
+#define PACKET_BUFFER_SIZE (128)
+
 class SkynetSerialPort : public QThread
 {
     Q_OBJECT
@@ -28,7 +30,8 @@ signals:
 protected:
     void decodePacket();
 
-    QByteArray currentPacket;
+    char currentPacket[PACKET_BUFFER_SIZE];
+    int currentPacketLength = 0;
 
 private:
     QString portName;

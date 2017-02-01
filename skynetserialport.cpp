@@ -1,8 +1,11 @@
 #include "skynetserialport.h"
 
+#include "qserialport.h"
+
 #include <QtSerialPort/QtSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
+#define REQUEST_BUFFER_SIZE (2048)
 
 SkynetSerialPort::SkynetSerialPort(QObject *parent = nullptr)
     : QThread(parent), waitTimeout(0), quit(false)
@@ -44,13 +47,11 @@ void SkynetSerialPort::run()
 
     QSerialPort serial;
 
-    QByteArray requestData = "";
-
     while (!quit) {
         if (currentPortNameChanged) {
             serial.close();
             serial.setPortName(currentPortName);
-            serial.setBaudRate(460800);
+
 
             if (!serial.open(QIODevice::ReadWrite)) {
                 qDebug("Error!");
@@ -58,35 +59,39 @@ void SkynetSerialPort::run()
                 emit error("Can't Open serial port");
                 return;
             }
+
+            serial.setBaudRate(460800);
+            serial.setDataBits(QSerialPort::DataBits::Data8);
+            serial.setParity(QSerialPort::Parity::NoParity);
+            serial.setStopBits(QSerialPort::StopBits::OneStop);
+            serial.setFlowControl(QSerialPort::FlowControl::NoFlowControl);
+
+            currentPortNameChanged = false;
         }
 
-        //qDebug("waiting");
+        char data[2048];
+        int dataLength = 0;
 
+        qDebug("wait!");
         if (serial.waitForReadyRead(currentWaitTimeout)) {
             // read request
-            QByteArray ba = serial.readAll();
-            char *data = ba.data();
+            dataLength = serial.read(data, 2048);
 
-            while (*data) {
+            for (int i=0; i < dataLength; i++) {
 
-                char c = *data;
-                qDebug("%i", c);
-                ++data;
+                char c = data[i];
 
                 if (c == startChar) {
-                    //qDebug().nospace() << "Start char";
-
-                    if (!currentPacket.isEmpty()) {
+                    if (currentPacketLength > 0) {
                         decodePacket();
                     }
-
-                    currentPacket = QByteArray();
+                    currentPacketLength = 0;
                     continue;
                 }
 
                 if (c == escapeChar) {
                     escaped = true;
-                    qDebug("esc char");
+                    qDebug("esc");
                     continue;
                 }
 
@@ -95,7 +100,7 @@ void SkynetSerialPort::run()
                     escaped = false;
                 }
 
-                currentPacket.append(c);
+                currentPacket[currentPacketLength++] = c;
             }
         }   
     }
@@ -103,12 +108,12 @@ void SkynetSerialPort::run()
 
 void SkynetSerialPort::decodePacket()
 {
-    qDebug("decode %i", currentPacket.length());
+    qDebug("decode %i", currentPacketLength);
 }
 
 void HighSpeedSkynetSerialPort::decodePacket()
 {
-    qDebug(currentPacket.toHex());
+   // qDebug(currentPacket.toHex());
 }
 
 QList<QString> SkynetSerialPort::getAvailablePorts()
