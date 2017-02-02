@@ -72,7 +72,6 @@ void SkynetSerialPort::run()
         char data[2048];
         int dataLength = 0;
 
-        qDebug("wait!");
         if (serial.waitForReadyRead(currentWaitTimeout)) {
             // read request
             dataLength = serial.read(data, 2048);
@@ -91,7 +90,6 @@ void SkynetSerialPort::run()
 
                 if (c == escapeChar) {
                     escaped = true;
-                    qDebug("esc");
                     continue;
                 }
 
@@ -108,7 +106,26 @@ void SkynetSerialPort::run()
 
 void SkynetSerialPort::decodePacket()
 {
-    qDebug("decode %i", currentPacketLength);
+    // Check that we at least have 2 header bytes and a CRC byte.
+    if (currentPacketLength < 3) {
+        qDebug("packet length not valid: %i", currentPacketLength);
+        return;
+    }
+
+    int packetAddress = ((currentPacket[0] << 3) & 0x7F8)
+            + ((currentPacket[1] >> 5) & 0x7);
+
+    int payloadLength = currentPacket[1] & 0x0F;
+
+    if (currentPacketLength != payloadLength + 3) {
+        qDebug("packet length not valid: %i, expected: %i", currentPacketLength,
+               payloadLength + 3);
+        return;
+    }
+
+    // TODO: verify CRC.
+
+    qDebug("[%x] %i:", packetAddress, payloadLength);
 }
 
 void HighSpeedSkynetSerialPort::decodePacket()
