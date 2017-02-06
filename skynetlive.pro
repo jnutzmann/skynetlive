@@ -26,10 +26,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp \
     skynetlive.cpp \
-    skynetserialport.cpp
+    packetdefinitions.cpp \
+    serialport.cpp \
+    displaypackethandler.cpp \
+    field.cpp
 
 HEADERS  += \
     skynetlive.h \
-    skynetserialport.h
+    serialport.h \
+    packetdefinitions.h \
+    displaypackethandler.h \
+    field.h
 
 FORMS    +=

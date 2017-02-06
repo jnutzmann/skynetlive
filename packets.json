@@ -1,0 +1,333 @@
+[
+    {
+        "address": 1280,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 2,
+                "description": "PCBA temp near phases connector",
+                "name": "temp_near_connector",
+                "scale": null,
+                "type": "float",
+                "unit": "K"
+            },
+            {
+                "decimals": 2,
+                "description": "PCBA temp near switching regulators",
+                "name": "temp_near_switchers",
+                "scale": null,
+                "type": "float",
+                "unit": "K"
+            }
+        ],
+        "description": "PCBA temperatures",
+        "endian": "little",
+        "name": "board_temperature_0"
+    },
+    {
+        "address": 1281,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 2,
+                "description": "PCBA temp near RTD sense cirucit",
+                "name": "temp_near_rtd",
+                "scale": null,
+                "type": "float",
+                "unit": "K"
+            },
+            {
+                "decimals": 2,
+                "description": "PCBA temp near CAN tranciever",
+                "name": "temp_near_can",
+                "scale": null,
+                "type": "float",
+                "unit": "K"
+            }
+        ],
+        "description": "PCBA temperatures",
+        "endian": "little",
+        "name": "board_temperature_1"
+    },
+    {
+        "address": 1282,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 0,
+                "description": "Setpoint for heaters",
+                "name": "setpoint",
+                "scale": null,
+                "type": "float",
+                "unit": "K"
+            },
+            {
+                "decimals": 1,
+                "description": "Hysteresis for heaters",
+                "name": "hysteresis",
+                "scale": null,
+                "type": "float",
+                "unit": "K"
+            }
+        ],
+        "description": "Command temperature for board heaters",
+        "endian": "little",
+        "name": "thermostat_config"
+    },
+    {
+        "address": 1283,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 3,
+                "description": "asd",
+                "name": "mech_velocity",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": "asd",
+                "name": "absolute_position",
+                "scale": null,
+                "type": "int32_t",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": "asd",
+                "name": "motor_position",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": "Motor Feedback",
+        "endian": "little",
+        "name": "motor_feedback"
+    },
+    {
+        "address": 1284,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_a",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_b",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_c",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": "Motor Phase Current",
+        "endian": "little",
+        "name": "motor_current"
+    },
+    {
+        "address": 1285,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_a",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_b",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_c",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": "Motor Phase Voltage",
+        "endian": "little",
+        "name": "motor_voltage"
+    },
+    {
+        "address": 1286,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_a",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_b",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "phase_c",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": "Motor Phase Current Lowside",
+        "endian": "little",
+        "name": "motor_current_lowside"
+    },
+    {
+        "address": 1287,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 2,
+                "description": "Votlage measured at the input",
+                "name": "voltage_input",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": "Motor current measured at the input",
+                "name": "current_input",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 2,
+                "description": "Voltage measured after the precharge circuit",
+                "name": "voltage_motor",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": "Monitoring of power at input",
+        "endian": "little",
+        "name": "input_power"
+    },
+    {
+        "address": 1288,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 2,
+                "description": "Votlage measured at the input",
+                "name": "voltage_5v0",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": "Motor current measured at the input",
+                "name": "current_5v0",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 2,
+                "description": "Voltage measured after the precharge circuit",
+                "name": "voltage_10v0",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": "Monitoring of power after regulators",
+        "endian": "little",
+        "name": "regulator_power"
+    },
+    {
+        "address": 1289,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 3,
+                "description": "V1",
+                "name": "v1",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": "V2",
+                "name": "v2",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": "V3",
+                "name": "v3",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": "Voltage the controller is outputting",
+        "endian": "little",
+        "name": "output_voltage"
+    },
+    {
+        "address": 1290,
+        "board": "vector",
+        "data": [
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "iq",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            },
+            {
+                "decimals": 3,
+                "description": null,
+                "name": "id",
+                "scale": null,
+                "type": "float",
+                "unit": null
+            }
+        ],
+        "description": null,
+        "endian": "little",
+        "name": "foc_current"
+    }
+]

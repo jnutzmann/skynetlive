@@ -5,16 +5,20 @@
 #include <QThread>
 #include <QMutex>
 #include <QWaitCondition>
+#include <QTime>
 
 #define PACKET_BUFFER_SIZE (128)
 
-class SkynetSerialPort : public QThread
+/**
+ * @brief Serial port listener for standard Skynet format packets.
+ */
+class SerialPort : public QThread
 {
     Q_OBJECT
 
 public:
-    explicit SkynetSerialPort(QObject *parent);
-    ~SkynetSerialPort();
+    explicit SerialPort(QObject *parent);
+    ~SerialPort();
 
     void startPort(const QString &portName);
     void run() Q_DECL_OVERRIDE;
@@ -22,7 +26,7 @@ public:
     static QList<QString> getAvailablePorts();
 
 signals:
-    void packet(); // TBD type
+    void packetReceived(int address, int length, char* payload, QTime timestamp);
 
     void error(const QString &s);
     void timeout(const QString &s);
@@ -43,16 +47,6 @@ private:
     char escapeChar = 0x7D;
 
     bool escaped = false;
-};
-
-
-// High speed serial ports are simply a struct that gets dumped out
-// on the serial port.  We will override the standard decode with
-// a more simple version.
-class HighSpeedSkynetSerialPort : SkynetSerialPort
-{
-protected:
-    void decodePacket(); // Q_DECL_OVERRIDE;
 };
 
 #endif // SKYNETSERIALPORT_H

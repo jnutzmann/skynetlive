@@ -1,5 +1,4 @@
-#include "skynetserialport.h"
-
+#include "serialport.h"
 #include "qserialport.h"
 
 #include <QtSerialPort/QtSerialPort>
@@ -7,12 +6,11 @@
 
 #define REQUEST_BUFFER_SIZE (2048)
 
-SkynetSerialPort::SkynetSerialPort(QObject *parent = nullptr)
+SerialPort::SerialPort(QObject *parent = nullptr)
     : QThread(parent), waitTimeout(0), quit(false)
-{
-}
+{}
 
-SkynetSerialPort::~SkynetSerialPort()
+SerialPort::~SerialPort()
 {
     mutex.lock();
     quit = true;
@@ -20,7 +18,7 @@ SkynetSerialPort::~SkynetSerialPort()
     wait();
 }
 
-void SkynetSerialPort::startPort(const QString &portName)
+void SerialPort::startPort(const QString &portName)
 {
     QMutexLocker locker(&mutex);
     this->portName = portName;
@@ -29,7 +27,7 @@ void SkynetSerialPort::startPort(const QString &portName)
     }
 }
 
-void SkynetSerialPort::run()
+void SerialPort::run()
 {
     bool currentPortNameChanged = false;
 
@@ -52,10 +50,9 @@ void SkynetSerialPort::run()
             serial.close();
             serial.setPortName(currentPortName);
 
-
             if (!serial.open(QIODevice::ReadWrite)) {
-                qDebug("Error!");
-                qDebug(serial.errorString().toLatin1());
+                qWarning("Error!");
+                qWarning(serial.errorString().toLatin1());
                 emit error("Can't Open serial port");
                 return;
             }
@@ -72,28 +69,32 @@ void SkynetSerialPort::run()
         char data[2048];
         int dataLength = 0;
 
-        if (serial.waitForReadyRead(currentWaitTimeout)) {
+        if (serial.waitForReadyRead(currentWaitTimeout))
+        {
             // read request
             dataLength = serial.read(data, 2048);
 
-            for (int i=0; i < dataLength; i++) {
-
+            for (int i=0; i < dataLength; i++)
+            {
                 char c = data[i];
 
                 if (c == startChar) {
-                    if (currentPacketLength > 0) {
+                    if (currentPacketLength > 0)
+                    {
                         decodePacket();
                     }
                     currentPacketLength = 0;
                     continue;
                 }
 
-                if (c == escapeChar) {
+                if (c == escapeChar)
+                {
                     escaped = true;
                     continue;
                 }
 
-                if (escaped) {
+                if (escaped)
+                {
                     c ^= 0x20;
                     escaped = false;
                 }
@@ -104,11 +105,15 @@ void SkynetSerialPort::run()
     }
 }
 
-void SkynetSerialPort::decodePacket()
+// This decodes the standard SkynetSerial packet (CAN-like syntax)
+void SerialPort::decodePacket()
 {
+    QTime ts = QTime.currentTime();
+
     // Check that we at least have 2 header bytes and a CRC byte.
-    if (currentPacketLength < 3) {
-        qDebug("packet length not valid: %i", currentPacketLength);
+    if (currentPacketLength < 3)
+    {
+        qWarning("packet length not valid: %i", currentPacketLength);
         return;
     }
 
@@ -117,23 +122,27 @@ void SkynetSerialPort::decodePacket()
 
     int payloadLength = currentPacket[1] & 0x0F;
 
-    if (currentPacketLength != payloadLength + 3) {
-        qDebug("packet length not valid: %i, expected: %i", currentPacketLength,
+    if (currentPacketLength != payloadLength + 3)
+    {
+        // Make sure the amount of data we have is the same as the packet
+        // says to expect.
+        qWarning("packet length not valid: %i, expected: %i", currentPacketLength,
                payloadLength + 3);
         return;
     }
 
-    // TODO: verify CRC.
+    // TODO(jnutzmann): verify CRC.
 
-    qDebug("[%x] %i:", packetAddress, payloadLength);
+    // TODO(jnutzmann): this is going to be a memory leak... need to change
+    // Make a copy of the particular payload so that we can emit it.
+    char* payload = new char[payloadLength];
+    memcpy(payload, currentPacket+2, payloadLength);
+
+    emit packetReceived(packetAddress, payloadLength, payload, ts);
 }
 
-void HighSpeedSkynetSerialPort::decodePacket()
-{
-   // qDebug(currentPacket.toHex());
-}
 
-QList<QString> SkynetSerialPort::getAvailablePorts()
+QList<QString> SerialPort::getAvailablePorts()
 {
     QList<QString> portList; // = new QList<QString>();
 

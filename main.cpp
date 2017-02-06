@@ -1,7 +1,10 @@
 #include "skynetlive.h"
 #include <QApplication>
+#include <QObject>
 
-#include "skynetserialport.h"
+#include "serialport.h"
+#include "packetdefinitions.h"
+#include "displaypackethandler.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,12 +12,25 @@ int main(int argc, char *argv[])
     SkynetLive w;
     w.show();
 
-    const auto portList = SkynetSerialPort::getAvailablePorts();
-    for(const QString &portName : portList)
-        qDebug(portName.toLatin1());
+    // TODO(jnutzmann): don't statically define this.
+    const QString packetFileName = "packets.json";
+    const QString serialPort = "ttyUSB1";
 
-    SkynetSerialPort sp(nullptr);
-    sp.startPort("ttyUSB1");
+//    const auto portList = SkynetSerialPort::getAvailablePorts();
+//    for(const QString &portName : portList)
+//        qDebug(portName.toLatin1());
+
+
+    PacketsCollection def(packetFileName);
+
+    SerialPort sp(nullptr);
+    sp.startPort(serialPort);
+
+    DisplayPacketHandler dph(&def);
+
+    // Setup handler for packets.
+    QObject::connect(&sp, &SerialPort::packetReceived, &dph,
+            &DisplayPacketHandler::handlePacket);
 
 
     return app.exec();
