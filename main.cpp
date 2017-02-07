@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
     sp.startPort(serialPort);
 
     DisplayPacketHandler dph(&def);
+    dph.show();
 
     // Setup handler for packets.
     QObject::connect(&sp, &SerialPort::packetReceived, &dph,

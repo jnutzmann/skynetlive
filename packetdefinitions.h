@@ -2,7 +2,7 @@
 #define SKYNETPACKETDEFINITIONS_H
 
 #include <QJsonObject>
-#include <QHash>
+#include <QMap>
 
 /**
  * @brief Class to hold information about a specific field of Skynet data.
@@ -63,6 +63,7 @@ public:
     void addField(FieldDefinition* dataCmp);
     QList<FieldDefinition*>* getFields();
     size_t payloadSize();
+    int fieldCount();
 
     const QString name;
     const int address;
@@ -85,9 +86,12 @@ class PacketsCollection
 public:
     PacketsCollection(QString filename);
     PacketDefinition* findPacketDefinition(int address);
+    PacketDefinition* getPacketByIndex(int index);
+    int packetCount();
+    int dataCount();
 
 private:
-    QHash<int, PacketDefinition*> packets;
+    QMap<int, PacketDefinition*> packets;
 };
 
 #endif // SKYNETPACKETDEFINITIONS_H

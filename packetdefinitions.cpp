@@ -57,6 +57,11 @@ QList<FieldDefinition*>* PacketDefinition::getFields()
     return &fields;
 }
 
+int PacketDefinition::fieldCount()
+{
+    return fields.count();
+}
+
 size_t PacketDefinition::payloadSize()
 {
     size_t s = 0;
@@ -123,4 +128,26 @@ PacketsCollection::PacketsCollection(QString filename)
 PacketDefinition* PacketsCollection::findPacketDefinition(int address)
 {
     return packets.value(address, nullptr);
+}
+
+PacketDefinition* PacketsCollection::getPacketByIndex(int index)
+{
+    return packets[packets.keys()[index]];
+}
+
+int PacketsCollection::packetCount()
+{
+    return packets.count();
+}
+
+int PacketsCollection::dataCount()
+{
+    int count = 0;
+
+    for (PacketDefinition* p : packets)
+    {
+        count += p->fieldCount();
+    }
+
+    return count;
 }

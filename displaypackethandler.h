@@ -1,11 +1,11 @@
 #ifndef DISPLAYPACKETHANDLER_H
 #define DISPLAYPACKETHANDLER_H
 
-#include <QObject>
+#include <QMainWindow>
 
 #include "packetdefinitions.h"
 
-class DisplayPacketHandler : public QObject
+class DisplayPacketHandler : public QMainWindow
 {
     Q_OBJECT
 

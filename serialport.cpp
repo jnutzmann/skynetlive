@@ -108,7 +108,7 @@ void SerialPort::run()
 // This decodes the standard SkynetSerial packet (CAN-like syntax)
 void SerialPort::decodePacket()
 {
-    QTime ts = QTime.currentTime();
+    QTime ts = QTime::currentTime();
 
     // Check that we at least have 2 header bytes and a CRC byte.
     if (currentPacketLength < 3)
@@ -133,8 +133,8 @@ void SerialPort::decodePacket()
 
     // TODO(jnutzmann): verify CRC.
 
-    // TODO(jnutzmann): this is going to be a memory leak... need to change
     // Make a copy of the particular payload so that we can emit it.
+    // TODO(jnutzmann): this is going to be a memory leak... need to change
     char* payload = new char[payloadLength];
     memcpy(payload, currentPacket+2, payloadLength);
 
@@ -144,7 +144,7 @@ void SerialPort::decodePacket()
 
 QList<QString> SerialPort::getAvailablePorts()
 {
-    QList<QString> portList; // = new QList<QString>();
+    QList<QString> portList;
 
     const auto infos = QSerialPortInfo::availablePorts();
     for (const QSerialPortInfo &info : infos)
