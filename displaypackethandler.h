@@ -1,6 +1,7 @@
 #ifndef DISPLAYPACKETHANDLER_H
 #define DISPLAYPACKETHANDLER_H
 
+#include <QTableWidget>
 #include <QMainWindow>
 
 #include "packetdefinitions.h"
@@ -18,6 +19,7 @@ public slots:
 
 private:
     PacketsCollection* defs;
+    QHash<FieldDefinition*, QTableWidgetItem*> fieldToTableMap;
 };
 
 #endif // DISPLAYPACKETHANDLER_H

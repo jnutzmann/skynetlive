@@ -9,16 +9,16 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    SkynetLive w;
-    w.show();
+   // SkynetLive w;
+   // w.show();
 
     // TODO(jnutzmann): don't statically define this.
     const QString packetFileName = "packets.json";
-    const QString serialPort = "ttyUSB1";
+    const QString serialPort = "ttyUSB0";
 
-//    const auto portList = SkynetSerialPort::getAvailablePorts();
-//    for(const QString &portName : portList)
-//        qDebug(portName.toLatin1());
+    const auto portList = SerialPort::getAvailablePorts();
+    for(const QString &portName : portList)
+        qDebug(portName.toLatin1());
 
 
     PacketsCollection def(packetFileName);
