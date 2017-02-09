@@ -81,9 +81,6 @@ void DisplayPacketHandler::handlePacket(int address, int length, char payload[8]
        payloadIndex += fd->size();
 
        fieldToTableMap[fd]->setText(f->toString());
-
-       QString msg = "[" + pktdef->name + "] " + fd->name + ": " + f->toString();
-       qDebug(msg.toLatin1());
     }
 }
 

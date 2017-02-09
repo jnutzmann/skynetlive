@@ -14,11 +14,14 @@ int main(int argc, char *argv[])
 
     // TODO(jnutzmann): don't statically define this.
     const QString packetFileName = "packets.json";
-    const QString serialPort = "ttyUSB0";
+    QString serialPort;
 
     const auto portList = SerialPort::getAvailablePorts();
     for(const QString &portName : portList)
+    {
         qDebug(portName.toLatin1());
+        serialPort = portName;
+    }
 
 
     PacketsCollection def(packetFileName);

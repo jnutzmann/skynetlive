@@ -6,6 +6,7 @@
 
 QT += core gui
 QT += serialport
+QT += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -29,13 +30,15 @@ SOURCES += main.cpp \
     packetdefinitions.cpp \
     serialport.cpp \
     displaypackethandler.cpp \
-    field.cpp
+    field.cpp \
+    qcustomplot.cpp
 
 HEADERS  += \
     skynetlive.h \
     serialport.h \
     packetdefinitions.h \
     displaypackethandler.h \
-    field.h
+    field.h \
+    qcustomplot.h
 
 FORMS    +=
