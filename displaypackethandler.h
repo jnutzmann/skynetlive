@@ -3,7 +3,7 @@
 
 #include <QTableWidget>
 #include <QMainWindow>
-
+#include "qcustomplot.h"
 #include "packetdefinitions.h"
 
 class DisplayPacketHandler : public QMainWindow
@@ -15,11 +15,15 @@ public:
     ~DisplayPacketHandler();
 
 public slots:
-    void handlePacket(int address, int length, char* payload);
+    void handlePacket(int address, int length, char* payload, QTime ts);
 
 private:
     PacketsCollection* defs;
     QHash<FieldDefinition*, QTableWidgetItem*> fieldToTableMap;
+
+
+    QCustomPlot* plt;
+
 };
 
 #endif // DISPLAYPACKETHANDLER_H

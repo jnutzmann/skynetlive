@@ -126,8 +126,8 @@ void SerialPort::decodePacket()
     {
         // Make sure the amount of data we have is the same as the packet
         // says to expect.
-        qWarning("packet length not valid: %i, expected: %i", currentPacketLength,
-               payloadLength + 3);
+        qWarning("packet length not valid: %i, expected: %i (addr: %i)",
+                 currentPacketLength, payloadLength + 3, packetAddress);
         return;
     }
 

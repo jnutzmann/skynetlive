@@ -41,6 +41,8 @@ int Field::toSigned()
         memcpy(&c2, bytes.b, 4);
         return (int) c2;
     }
+
+    return 0;
 }
 
 uint32_t Field::toUnsigned()
@@ -59,6 +61,8 @@ uint32_t Field::toUnsigned()
         memcpy(&c2, bytes.b, 4);
         return (uint32_t) c2;
     }
+
+    return 0;
 }
 
 float Field::toFloat()
@@ -81,4 +85,21 @@ QString Field::toString()
     }
 
     return str;
+}
+
+double Field::castToDouble()
+{
+    double val = 0.0;
+
+    if (isUnsignedInt())
+    {
+        val = (double) toUnsigned();
+    } else if (isSignedInt())
+    {
+        val = (double) toSigned();
+    } else if (isFloat()) {
+        val = (double) toFloat();
+    }
+
+    return val;
 }

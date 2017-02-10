@@ -2,6 +2,7 @@
 #include "field.h"
 
 
+
 #include <QApplication>
 #include <QtWidgets>
 #include <QHash>
@@ -10,6 +11,10 @@
 DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
     : defs(packetDefinitions)
 {
+    QWidget* window =  new QWidget();
+    QHBoxLayout* hLayout = new QHBoxLayout();
+    QVBoxLayout* vLayout = new QVBoxLayout();
+
     int rowCount = packetDefinitions->dataCount();
     int packetCount = packetDefinitions->packetCount();
 
@@ -47,15 +52,55 @@ DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
 
     tbl->setHorizontalHeaderLabels(QStringList() << "Packet" << "Field" << "Value");
     tbl->verticalHeader()->hide();
-    setCentralWidget(tbl);
+
+    tbl->setMaximumWidth(400);
+
+
+
+
+    plt = new QCustomPlot;
+
+    plt->addGraph(); // blue line
+    plt->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+    plt->addGraph(); // red line
+    plt->graph(1)->setPen(QPen(QColor(255, 110, 40)));
+
+    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+    timeTicker->setTimeFormat("%h:%m:%s");
+    plt->xAxis->setTicker(timeTicker);
+    //plt->axisRect()->setupFullAxesBox();
+    //plt->yAxis->setRange(-1.2, 1.2);
+
+    // make left and bottom axes transfer their ranges to right and top axes:
+    //connect(plt->xAxis, SIGNAL(rangeChanged(QCPRange)), plt->xAxis2, SLOT(setRange(QCPRange)));
+    //connect(plt->yAxis, SIGNAL(rangeChanged(QCPRange)), plt->yAxis2, SLOT(setRange(QCPRange)));
+
+    // setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
+    //connect(&dataTimer, SIGNAL(timeout()), this, SLOT(realtimeDataSlot()));
+    //dataTimer.start(0); // Interval 0 means to refresh as fast as possible
+
+
+
+
+
+    vLayout->addWidget(plt);
+
+    hLayout->addWidget(tbl);
+    hLayout->addLayout(vLayout);
+
+    window->setLayout(hLayout);
+    setCentralWidget(window);
 
     setWindowTitle("SkynetLive Packet Display");
     setMinimumSize(160, 160);
-    resize(500, 1000);
+    resize(1800, 1000);
 
 }
 
-void DisplayPacketHandler::handlePacket(int address, int length, char payload[8])
+// http://qcustomplot.com/index.php/demos/realtimedatademo
+
+void DisplayPacketHandler::handlePacket(int address, int length,
+                                        char payload[8], QTime ts)
 {
     PacketDefinition* pktdef = defs->findPacketDefinition(address);
 
@@ -81,6 +126,13 @@ void DisplayPacketHandler::handlePacket(int address, int length, char payload[8]
        payloadIndex += fd->size();
 
        fieldToTableMap[fd]->setText(f->toString());
+
+       if (fd->name == "id")
+       {
+           plt->graph(0)->addData(ts.msecsSinceStartOfDay()/1000, f->castToDouble());
+           plt->replot();
+           qDebug("asd");
+       }
     }
 }
 

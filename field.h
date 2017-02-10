@@ -19,6 +19,8 @@ public:
     uint32_t toUnsigned();
     float toFloat();
     QString toString();
+    double castToDouble();
+
 
 protected:
     union {

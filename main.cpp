@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
    // w.show();
 
     // TODO(jnutzmann): don't statically define this.
-    const QString packetFileName = "packets.json";
+    const QString packetFileName = "/usr/local/google/home/jnutzmann/vector/skynet/static/packets.json";
     QString serialPort;
 
     const auto portList = SerialPort::getAvailablePorts();
@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
         serialPort = portName;
     }
 
+    serialPort = "ttyUSB0";
 
     PacketsCollection def(packetFileName);
 
