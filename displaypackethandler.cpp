@@ -1,32 +1,36 @@
 #include "displaypackethandler.h"
 #include "field.h"
 
-
-
 #include <QApplication>
 #include <QtWidgets>
 #include <QHash>
 
-
-DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
-    : defs(packetDefinitions)
+void DisplayPacketHandler::setupPens()
 {
-    QWidget* window =  new QWidget();
-    QHBoxLayout* hLayout = new QHBoxLayout();
-    QVBoxLayout* vLayout = new QVBoxLayout();
+    // TODO: this should probably be a static table.
+    pens.append(new QPen(QColor(0, 114, 189)));
+    pens.append(new QPen(QColor(217, 83, 25)));
+    pens.append(new QPen(QColor(237, 177, 32)));
+    pens.append(new QPen(QColor(126, 47, 142)));
+    pens.append(new QPen(QColor(119, 172, 48)));
+    pens.append(new QPen(QColor(77, 190, 238)));
+    pens.append(new QPen(QColor(162, 20, 47)));
+}
 
-    int rowCount = packetDefinitions->dataCount();
-    int packetCount = packetDefinitions->packetCount();
+QTableWidget* DisplayPacketHandler::setupTable()
+{
+    int rowCount = defs->dataCount();
+    int packetCount = defs->packetCount();
 
     QTableWidget* tbl = new QTableWidget(rowCount, 3);
 
     int rowIndex = 0;
-
     for (int i = 0; i < packetCount; i++)
     {
         PacketDefinition* pd = defs->getPacketByIndex(i);
 
         QTableWidgetItem* name = new QTableWidgetItem(pd->name);
+
         int fieldCount = pd->fieldCount();
         tbl->setSpan(rowIndex, 0, fieldCount, 1);
         tbl->setItem(rowIndex, 0, name);
@@ -55,38 +59,124 @@ DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
 
     tbl->setMaximumWidth(400);
 
+    return tbl;
+}
 
+QCustomPlot* DisplayPacketHandler::setupPlot()
+{
+    QCustomPlot* plt = new QCustomPlot;
 
+    // TODO: add these later.
+    //plt->addGraph(); // blue line
+    //plt->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+    //plt->addGraph(); // red line
+    //plt->graph(1)->setPen(QPen(QColor(255, 110, 40)));
 
-    plt = new QCustomPlot;
-
-    plt->addGraph(); // blue line
-    plt->graph(0)->setPen(QPen(QColor(40, 110, 255)));
-    plt->addGraph(); // red line
-    plt->graph(1)->setPen(QPen(QColor(255, 110, 40)));
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m:%s");
     plt->xAxis->setTicker(timeTicker);
-    //plt->axisRect()->setupFullAxesBox();
-    //plt->yAxis->setRange(-1.2, 1.2);
+    plt->axisRect()->setupFullAxesBox();
+
+    plt->legend->setVisible(true);
 
     // make left and bottom axes transfer their ranges to right and top axes:
-    //connect(plt->xAxis, SIGNAL(rangeChanged(QCPRange)), plt->xAxis2, SLOT(setRange(QCPRange)));
-    //connect(plt->yAxis, SIGNAL(rangeChanged(QCPRange)), plt->yAxis2, SLOT(setRange(QCPRange)));
+    // TODO: are these necessary?
+    connect(plt->xAxis, SIGNAL(rangeChanged(QCPRange)), plt->xAxis2, SLOT(setRange(QCPRange)));
+    connect(plt->yAxis, SIGNAL(rangeChanged(QCPRange)), plt->yAxis2, SLOT(setRange(QCPRange)));
 
-    // setup a timer that repeatedly calls MainWindow::realtimeDataSlot:
-    //connect(&dataTimer, SIGNAL(timeout()), this, SLOT(realtimeDataSlot()));
-    //dataTimer.start(0); // Interval 0 means to refresh as fast as possible
+    return plt;
+}
 
+void DisplayPacketHandler::refreshPlots()
+{
+    for(QCustomPlot* p : plots)
+    {
+        p->yAxis->rescale();
+        p->xAxis->setRange(startTime.elapsed()/1000.0, plotTimeWindow, Qt::AlignRight);
+        p->replot();
+    }
+}
 
+void DisplayPacketHandler::updatePlotTimeWindow(int value)
+{
+    plotTimeWindow = value;
+}
 
+QBoxLayout* DisplayPacketHandler::setupPlotBar()
+{
+    // create a layout to enclose plot setup bar.
+    QHBoxLayout* plotSetupBar = new QHBoxLayout();
 
+    QLabel* timeWindowLabel = new QLabel("Time Window:");
+    QSpinBox* timeWindow = new QSpinBox();
+    timeWindow->setValue(plotTimeWindow);
 
-    vLayout->addWidget(plt);
+    connect(timeWindow, SIGNAL(valueChanged(int)), this, SLOT(updatePlotTimeWindow(int)));
 
-    hLayout->addWidget(tbl);
-    hLayout->addLayout(vLayout);
+    QPushButton* addPlotButton = new QPushButton("Add Plot");
+
+    plotSetupBar->addWidget(timeWindowLabel);
+    plotSetupBar->addWidget(timeWindow);
+    plotSetupBar->addWidget(addPlotButton);
+
+    connect(addPlotButton, SIGNAL(clicked(bool)), this, SLOT(addPlot()));
+
+    return plotSetupBar;
+}
+
+void DisplayPacketHandler::setupRefreshTimer()
+{
+    QTimer* timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(refreshPlots()));
+    timer->start(1000/30);
+}
+
+void DisplayPacketHandler::addPlot()
+{
+    QCustomPlot* p = setupPlot();
+    plotColumnLayout->addWidget(p);
+    plots.append(p);
+}
+
+void DisplayPacketHandler::addGraph(QCustomPlot* p, FieldDefinition* fd)
+{
+    QCPGraph* g = p->addGraph();
+    fieldToGraphMap[fd] = g;
+
+    g->setPen(*pens[(p->graphCount()-1) % pens.length()]);
+    g->setName(fd->name);
+}
+
+DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
+    : defs(packetDefinitions)
+{
+    // Record the start time to reference plot data from.
+    startTime = QTime(QTime::currentTime());
+
+    QWidget* window =  new QWidget();
+    QHBoxLayout* hLayout = new QHBoxLayout();
+    plotColumnLayout = new QVBoxLayout();
+
+    plotColumnLayout->addLayout(setupPlotBar());
+
+    hLayout->addWidget(setupTable());
+    hLayout->addLayout(plotColumnLayout);
+
+    setupPens();
+    addPlot();
+    addGraph(plots[0], defs->getPacketByName("foc_current")->getFieldByName("iq"));
+    addGraph(plots[0], defs->getPacketByName("foc_current")->getFieldByName("id"));
+
+    addPlot();
+    addGraph(plots[1], defs->getPacketByName("motor_current")->getFieldByName("phase_a"));
+    addGraph(plots[1], defs->getPacketByName("motor_current")->getFieldByName("phase_b"));
+    addGraph(plots[1], defs->getPacketByName("motor_current")->getFieldByName("phase_c"));
+
+    addPlot();
+    addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vq_out"));
+    addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vd_out"));
+
 
     window->setLayout(hLayout);
     setCentralWidget(window);
@@ -95,14 +185,15 @@ DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
     setMinimumSize(160, 160);
     resize(1800, 1000);
 
+    setupRefreshTimer();
 }
-
-// http://qcustomplot.com/index.php/demos/realtimedatademo
 
 void DisplayPacketHandler::handlePacket(int address, int length,
                                         char payload[8], QTime ts)
 {
     PacketDefinition* pktdef = defs->findPacketDefinition(address);
+
+    double key = startTime.msecsTo(ts)/1000.0;
 
     if (pktdef == nullptr)
     {
@@ -127,11 +218,11 @@ void DisplayPacketHandler::handlePacket(int address, int length,
 
        fieldToTableMap[fd]->setText(f->toString());
 
-       if (fd->name == "id")
+       QCPGraph* g = fieldToGraphMap.value(fd, nullptr);
+
+       if (g != nullptr)
        {
-           plt->graph(0)->addData(ts.msecsSinceStartOfDay()/1000, f->castToDouble());
-           plt->replot();
-           qDebug("asd");
+           g->addData(key, f->castToDouble());
        }
     }
 }

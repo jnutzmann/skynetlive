@@ -62,6 +62,7 @@ public:
 
     void addField(FieldDefinition* dataCmp);
     QList<FieldDefinition*>* getFields();
+    FieldDefinition* getFieldByName(QString name);
     size_t payloadSize();
     int fieldCount();
 
@@ -87,6 +88,7 @@ public:
     PacketsCollection(QString filename);
     PacketDefinition* findPacketDefinition(int address);
     PacketDefinition* getPacketByIndex(int index);
+    PacketDefinition* getPacketByName(QString name);
     int packetCount();
     int dataCount();
 
