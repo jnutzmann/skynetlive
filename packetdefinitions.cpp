@@ -20,13 +20,16 @@ FieldDefinition::FieldDefinition(
     case DataType::UINT8:
     case DataType::INT8:
         packet_size = 1;
+        break;
     case DataType::UINT16:
     case DataType::INT16:
         packet_size = 2;
+        break;
     case DataType::UINT32:
     case DataType::INT32:
     case DataType::FLOAT:
         packet_size = 4;
+        break;
     }
 }
 
