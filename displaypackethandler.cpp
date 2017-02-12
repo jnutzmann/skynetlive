@@ -177,6 +177,9 @@ DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
     addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vq_out"));
     addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vd_out"));
 
+    addPlot();
+    addGraph(plots[3], defs->getPacketByName("motor_feedback")->getFieldByName("motor_position"));
+
 
     window->setLayout(hLayout);
     setCentralWidget(window);
