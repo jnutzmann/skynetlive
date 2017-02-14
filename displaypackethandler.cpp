@@ -1,4 +1,5 @@
 #include "displaypackethandler.h"
+#include "packetfieldswidget.h"
 #include "field.h"
 
 #include <QApplication>
@@ -65,13 +66,6 @@ QTableWidget* DisplayPacketHandler::setupTable()
 QCustomPlot* DisplayPacketHandler::setupPlot()
 {
     QCustomPlot* plt = new QCustomPlot;
-
-    // TODO: add these later.
-    //plt->addGraph(); // blue line
-    //plt->graph(0)->setPen(QPen(QColor(40, 110, 255)));
-    //plt->addGraph(); // red line
-    //plt->graph(1)->setPen(QPen(QColor(255, 110, 40)));
-
 
     QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
     timeTicker->setTimeFormat("%h:%m:%s");
@@ -148,6 +142,51 @@ void DisplayPacketHandler::addGraph(QCustomPlot* p, FieldDefinition* fd)
     g->setName(fd->name);
 }
 
+QBoxLayout* DisplayPacketHandler::setupPacketSender()
+{
+    QVBoxLayout* packetSenderLayout = new QVBoxLayout();
+    QComboBox* packetsComboBox = new QComboBox();
+
+    // Create a drop down combo box with the packets in it.
+    for (int i=0; i < defs->packetCount(); i++)
+    {
+        PacketDefinition* pd = defs->getPacketByIndex(i);
+        packetsComboBox->addItem(pd->name, QVariant(pd->address));
+    }
+    packetSenderLayout->addWidget(packetsComboBox);
+
+    // Create a grid layout for each packet.
+    for (int i=0; i < defs->packetCount(); i++)
+    {
+        PacketDefinition* pd = defs->getPacketByIndex(i);
+        PacketFieldsWidget* pFields = new PacketFieldsWidget(pd);
+        sendPacketWidgets.insert(pd->name, pFields);
+        packetSenderLayout->addWidget(pFields);
+
+        connect(pFields, SIGNAL(sendPacket(int,int,uint8_t*)),
+                this, SIGNAL(sendPacket(int,int,uint8_t*)));
+    }
+
+    // update currently visible widget
+    updatePacketSenderVisible(packetsComboBox->currentText());
+
+    connect(packetsComboBox, SIGNAL(currentTextChanged(QString)), this,
+            SLOT(updatePacketSenderVisible(QString)));
+
+    return packetSenderLayout;
+}
+
+void DisplayPacketHandler::updatePacketSenderVisible(QString packetName)
+{
+    for (QWidget* w : sendPacketWidgets)
+    {
+        w->setVisible(false);
+    }
+
+    QWidget* w = sendPacketWidgets.value(packetName, nullptr);
+    if (w != nullptr) w->setVisible(true);
+}
+
 DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
     : defs(packetDefinitions)
 {
@@ -156,11 +195,16 @@ DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
 
     QWidget* window =  new QWidget();
     QHBoxLayout* hLayout = new QHBoxLayout();
-    plotColumnLayout = new QVBoxLayout();
 
+    QVBoxLayout* packetColumnLayout = new QVBoxLayout();
+
+    plotColumnLayout = new QVBoxLayout();
     plotColumnLayout->addLayout(setupPlotBar());
 
-    hLayout->addWidget(setupTable());
+    packetColumnLayout->addWidget(setupTable());
+    packetColumnLayout->addLayout(setupPacketSender());
+
+    hLayout->addLayout(packetColumnLayout);
     hLayout->addLayout(plotColumnLayout);
 
     setupPens();

@@ -37,6 +37,9 @@ int main(int argc, char *argv[])
     QObject::connect(&sp, &SerialPort::packetReceived, &dph,
             &DisplayPacketHandler::handlePacket);
 
+    QObject::connect(&dph, &DisplayPacketHandler::sendPacket, &sp,
+                     &SerialPort::sendPacket);
+
 
     return app.exec();
 }

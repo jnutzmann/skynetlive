@@ -63,6 +63,8 @@ public:
     void addField(FieldDefinition* dataCmp);
     QList<FieldDefinition*>* getFields();
     FieldDefinition* getFieldByName(QString name);
+    FieldDefinition* getFieldByIndex(int index);
+
     size_t payloadSize();
     int fieldCount();
 

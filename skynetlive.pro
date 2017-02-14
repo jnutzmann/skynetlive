@@ -31,7 +31,8 @@ SOURCES += main.cpp \
     serialport.cpp \
     displaypackethandler.cpp \
     field.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    packetfieldswidget.cpp
 
 HEADERS  += \
     skynetlive.h \
@@ -39,6 +40,7 @@ HEADERS  += \
     packetdefinitions.h \
     displaypackethandler.h \
     field.h \
-    qcustomplot.h
+    qcustomplot.h \
+    packetfieldswidget.h
 
 FORMS    +=

@@ -105,6 +105,18 @@ void SerialPort::run()
     }
 }
 
+void SerialPort::sendPacket(int address, int length, uint8_t* payload)
+{
+    if (isRunning())
+    {
+        qDebug("Sending addr %i with length %i", address, length);
+    }
+    else
+    {
+        qWarning("Tried to send packet without serial port running.");
+    }
+}
+
 // This decodes the standard SkynetSerial packet (CAN-like syntax)
 void SerialPort::decodePacket()
 {

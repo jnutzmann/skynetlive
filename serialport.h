@@ -31,6 +31,9 @@ signals:
     void error(const QString &s);
     void timeout(const QString &s);
 
+public slots:
+    void sendPacket(int address, int length, uint8_t* payload);
+
 protected:
     void decodePacket();
 

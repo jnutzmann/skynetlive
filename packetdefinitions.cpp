@@ -73,6 +73,11 @@ FieldDefinition* PacketDefinition::getFieldByName(QString name)
     return nullptr;
 }
 
+FieldDefinition* PacketDefinition::getFieldByIndex(int index)
+{
+    return fields[index];
+}
+
 int PacketDefinition::fieldCount()
 {
     return fields.count();
