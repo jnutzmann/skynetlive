@@ -43,25 +43,23 @@ void SerialPort::run()
 
     mutex.unlock();
 
-    QSerialPort serial;
-
     while (!quit) {
         if (currentPortNameChanged) {
-            serial.close();
-            serial.setPortName(currentPortName);
+            serialPort.close();
+            serialPort.setPortName(currentPortName);
 
-            if (!serial.open(QIODevice::ReadWrite)) {
+            if (!serialPort.open(QIODevice::ReadWrite)) {
                 qWarning("Error!");
-                qWarning(serial.errorString().toLatin1());
+                qWarning(serialPort.errorString().toLatin1());
                 emit error("Can't Open serial port");
                 return;
             }
 
-            serial.setBaudRate(460800);
-            serial.setDataBits(QSerialPort::DataBits::Data8);
-            serial.setParity(QSerialPort::Parity::NoParity);
-            serial.setStopBits(QSerialPort::StopBits::OneStop);
-            serial.setFlowControl(QSerialPort::FlowControl::NoFlowControl);
+            serialPort.setBaudRate(460800);
+            serialPort.setDataBits(QSerialPort::DataBits::Data8);
+            serialPort.setParity(QSerialPort::Parity::NoParity);
+            serialPort.setStopBits(QSerialPort::StopBits::OneStop);
+            serialPort.setFlowControl(QSerialPort::FlowControl::NoFlowControl);
 
             currentPortNameChanged = false;
         }
@@ -69,10 +67,10 @@ void SerialPort::run()
         char data[2048];
         int dataLength = 0;
 
-        if (serial.waitForReadyRead(currentWaitTimeout))
+        if (serialPort.waitForReadyRead(currentWaitTimeout))
         {
             // read request
-            dataLength = serial.read(data, 2048);
+            dataLength = serialPort.read(data, 2048);
 
             for (int i=0; i < dataLength; i++)
             {
@@ -105,11 +103,51 @@ void SerialPort::run()
     }
 }
 
+// TODO(jnutzmann): perhaps create a smart subclass of QByteArray?
+void SerialPort::appendEscaped(QByteArray* bytes, uint8_t c)
+{
+    if (c == escapeChar || c == startChar)
+    {
+        bytes->append((char) escapeChar);
+        c ^= 0x20;
+    }
+
+    bytes->append((char) c);
+}
+
 void SerialPort::sendPacket(int address, int length, uint8_t* payload)
 {
     if (isRunning())
     {
+        QByteArray bytes;
+        bytes.append(startChar);
+
+        uint8_t checksum = 0;
+        uint8_t holder = address >> 3;
+        uint8_t rtr = 0;
+
+        appendEscaped(&bytes, holder);
+        checksum += holder;
+
+        holder = (address) << 5
+               | (rtr << 4)
+               | (length);
+        appendEscaped(&bytes, holder);
+        checksum += holder;
+
+        for ( int i=0; i < length; i++)
+        {
+            appendEscaped(&bytes, payload[i]);
+            checksum += payload[i];
+        }
+
+        appendEscaped(&bytes, checksum);
+
+        serialPort.write(bytes);
+        serialPort.flush();
+
         qDebug("Sending addr %i with length %i", address, length);
+        qDebug(QString(bytes.toHex()).toLatin1());
     }
     else
     {

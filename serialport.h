@@ -7,6 +7,8 @@
 #include <QWaitCondition>
 #include <QTime>
 
+#include "qserialport.h"
+
 #define PACKET_BUFFER_SIZE (128)
 
 /**
@@ -36,11 +38,15 @@ public slots:
 
 protected:
     void decodePacket();
+    void appendEscaped(QByteArray* bytes, uint8_t c);
+
 
     char currentPacket[PACKET_BUFFER_SIZE];
     int currentPacketLength = 0;
 
 private:
+    QSerialPort serialPort;
+
     QString portName;
     int waitTimeout;
     QMutex mutex;
