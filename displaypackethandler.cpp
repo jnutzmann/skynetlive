@@ -211,18 +211,18 @@ DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
     addPlot();
     addGraph(plots[0], defs->getPacketByName("foc_current")->getFieldByName("iq"));
     addGraph(plots[0], defs->getPacketByName("foc_current")->getFieldByName("id"));
+    addGraph(plots[0], defs->getPacketByName("current_setpoint")->getFieldByName("iq_set"));
+    addGraph(plots[0], defs->getPacketByName("current_setpoint")->getFieldByName("id_set"));
 
     addPlot();
-    addGraph(plots[1], defs->getPacketByName("motor_current")->getFieldByName("phase_a"));
-    addGraph(plots[1], defs->getPacketByName("motor_current")->getFieldByName("phase_b"));
-    addGraph(plots[1], defs->getPacketByName("motor_current")->getFieldByName("phase_c"));
+    addGraph(plots[1], defs->getPacketByName("input_power")->getFieldByName("current_input"));
 
     addPlot();
     addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vq_out"));
     addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vd_out"));
 
     addPlot();
-    addGraph(plots[3], defs->getPacketByName("motor_feedback")->getFieldByName("motor_position"));
+    addGraph(plots[3], defs->getPacketByName("motor_feedback")->getFieldByName("mech_velocity"));
 
 
     window->setLayout(hLayout);
@@ -245,6 +245,7 @@ void DisplayPacketHandler::handlePacket(int address, int length,
     if (pktdef == nullptr)
     {
         qWarning("Unknown packet address %i", address);
+        return;
     }
 
     int expectedLength = pktdef->payloadSize();
@@ -252,6 +253,7 @@ void DisplayPacketHandler::handlePacket(int address, int length,
     {
         qWarning("Expected payload size %i but got %i for address %i",
                  expectedLength, length, address);
+        return;
     }
 
     QList<FieldDefinition*>* fields = pktdef->getFields();

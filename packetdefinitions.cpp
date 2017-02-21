@@ -85,10 +85,13 @@ int PacketDefinition::fieldCount()
 
 size_t PacketDefinition::payloadSize()
 {
+    // for some reason, fields is ocassionally null and we segfault.
+    if (!this) return 0;
+
     size_t s = 0;
-    for (FieldDefinition* f : fields)
+    for (int i=0; i < fields.size(); i++)
     {
-        s += f->size();
+        s += fields[i]->size();
     }
     return s;
 }
