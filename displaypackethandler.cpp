@@ -211,15 +211,15 @@ DisplayPacketHandler::DisplayPacketHandler(PacketsCollection* packetDefinitions)
     addPlot();
     addGraph(plots[0], defs->getPacketByName("foc_current")->getFieldByName("iq"));
     addGraph(plots[0], defs->getPacketByName("foc_current")->getFieldByName("id"));
-    addGraph(plots[0], defs->getPacketByName("current_setpoint")->getFieldByName("iq_set"));
-    addGraph(plots[0], defs->getPacketByName("current_setpoint")->getFieldByName("id_set"));
+    addGraph(plots[0], defs->getPacketByName("current_loop_setpoint")->getFieldByName("iq"));
+    addGraph(plots[0], defs->getPacketByName("current_loop_setpoint")->getFieldByName("id"));
 
     addPlot();
     addGraph(plots[1], defs->getPacketByName("input_power")->getFieldByName("current_input"));
 
     addPlot();
-    addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vq_out"));
-    addGraph(plots[2], defs->getPacketByName("pi_output")->getFieldByName("vd_out"));
+    addGraph(plots[2], defs->getPacketByName("current_loop_output")->getFieldByName("vq_out"));
+    addGraph(plots[2], defs->getPacketByName("current_loop_output")->getFieldByName("vd_out"));
 
     addPlot();
     addGraph(plots[3], defs->getPacketByName("motor_feedback")->getFieldByName("mech_velocity"));
